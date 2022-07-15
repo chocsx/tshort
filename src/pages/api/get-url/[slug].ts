@@ -1,14 +1,14 @@
-/* eslint-disable import/no-anonymous-default-export */
-import { NextApiRequest, NextApiResponse } from 'next'
-import { prisma } from '../../../db/client';
+import { NextApiRequest, NextApiResponse } from "next";
+
+import { prisma } from "../../../db/client";
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const slug = req.query["slug"];
 
   if (!slug || typeof slug !== "string") {
-    res.statusCode = 404
+    res.statusCode = 404;
 
-    res.send(JSON.stringify({ message: 'pls use with a slug' }))
+    res.send(JSON.stringify({ message: "pls use with a slug" }));
 
     return;
   }
@@ -16,26 +16,25 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   const data = await prisma.shortLink.findFirst({
     where: {
       slug: {
-        equals: slug
-      }
-    }
-  })
+        equals: slug,
+      },
+    },
+  });
 
-  if(!data) {
-    res.statusCode = 404
-    
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader(
-      "Cache-Control",
-      "s-maxage=1000000000, stale-while-revalidate"
-    );
+  if (!data) {
+    res.statusCode = 404;
 
-    res.send(JSON.stringify({ message: "slug not found" }))
+    res.send(JSON.stringify({ message: "slug not found" }));
 
     return;
   }
 
+  res.setHeader("Content-Type", "application/json");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Cache-Control",
+    "s-maxage=1000000000, stale-while-revalidate"
+  );
 
   return res.json(data);
 };
